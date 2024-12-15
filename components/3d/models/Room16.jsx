@@ -1,10 +1,24 @@
-import React, { useRef } from 'react'
-import { useGLTF } from '@react-three/drei'
+import React, { useCallback, useRef, useState } from 'react'
+import { Bounds, useGLTF } from '@react-three/drei'
 import { HoneycombLight } from './HoneyShapeLight';
+import { debounce } from "lodash"
+import { Select } from "@react-three/postprocessing"
+import Guitar from "./Guitar"
+import Computer from "./Computer"
+import Piano from "./Piano"
+import SelectToZoom from  "@/components/SelectToZoom"
 import * as THREE from 'three';
 
 export function Model(props) {
   const { nodes, materials } = useGLTF('/room16.glb')
+
+  const [hovered, hover] = useState(null)
+  // Debounce hover a bit to stop the ticker from being erratic
+  const debouncedHover = useCallback(debounce(hover, 30), [])
+  const over = (name) => (e) => (e.stopPropagation(), debouncedHover(name))
+
+
+
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -53,6 +67,8 @@ export function Model(props) {
           toneMapped={false}
         />
       </mesh>
+
+       {/* mouse pad */}
       <mesh
         castShadow
         receiveShadow
@@ -62,6 +78,7 @@ export function Model(props) {
         rotation={[0, Math.PI / 2, 0]}
         scale={[38.579, 0.807, 190.062]}
       />
+      
       <mesh
         castShadow
         receiveShadow
@@ -155,51 +172,9 @@ export function Model(props) {
           material={materials.Card}
         />
       </group>
-      {/* piano stand */}
-      <group position={[-5.924, 2.27, 5.186]} scale={[2.098, 2.577, 2.577]}>
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Cube015.geometry}
-          material={materials.WKeys}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Cube015_1.geometry}
-          material={materials.BKeys}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Cube015_2.geometry}
-          material={materials.Body}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Cube015_3.geometry}
-          material={materials.Speaker}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Cube015_4.geometry}
-          material={materials.StandPart}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Cube015_5.geometry}
-          material={materials.Stand}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Cube015_6.geometry}
-          material={materials.TopPart}
-        />
-      </group>
+
+ 
+
       {/* posters image on wall */}
       <mesh
         castShadow
@@ -260,81 +235,23 @@ export function Model(props) {
         rotation={[1.845, 0.09, 0.31]}
         scale={6.943}
       />
-      {/* Guitar */}
-      <group position={[-6.798, 2.81, -6.055]} rotation={[-0.428, 0.895, 0.23]} scale={2.513}>
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029.geometry}
-          material={materials.top}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029_1.geometry}
-          material={materials.strings}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029_2.geometry}
-          material={materials.bracing}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029_3.geometry}
-          material={materials.sides}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029_4.geometry}
-          material={materials.PaletteMaterial009}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029_5.geometry}
-          material={materials.neck}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029_6.geometry}
-          material={materials['Material.008']}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029_7.geometry}
-          material={materials.bridge}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029_8.geometry}
-          material={materials.Back}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029_9.geometry}
-          material={materials['Back.001']}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029_10.geometry}
-          material={materials.PaletteMaterial008}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.Plane029_11.geometry}
-          material={materials.PaletteMaterial010}
-        />
-      </group>
+      <Bounds fit clip observe margin={0.6}>
+      <SelectToZoom>
+
+      <Select enabled={hovered === "Guitar"} onPointerOver={over("Guitar")} onPointerOut={() => debouncedHover(null)}>
+      <Guitar />
+      </Select>
+
+      <Select enabled={hovered === "computer"} onPointerOver={over("computer")} onPointerOut={() => debouncedHover(null)}>
+      <Computer />
+      </Select>
+
+      <Select enabled={hovered === "piano"} onPointerOver={over("piano")} onPointerOut={() => debouncedHover(null)}>
+      <Piano />
+     </Select>
+
+      </SelectToZoom>
+      </Bounds>
       {/* lamp at desk */}
       <mesh
         castShadow
@@ -394,21 +311,7 @@ export function Model(props) {
         position={[0, 0.181, -0.005]}
         scale={0.91}
       />
-      {/* this is computer */}
-      <group position={[0.169, 3.86, -6.092]} scale={2.638}>
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.TV_1.geometry}
-          material={materials['Screen (tv)']}
-        />
-        <mesh
-          castShadow
-          receiveShadow
-          geometry={nodes.TV_2.geometry}
-          material={materials.PaletteMaterial011}
-        />
-      </group>
+   
     </group>
   )
 }
