@@ -5,25 +5,12 @@ import { Suspense, useEffect, useState } from 'react'
 import { EffectComposer, Bloom, ToneMapping } from '@react-three/postprocessing'
 import Loader from '../Loader';
 import { CameraControls, Environment, Lightformer } from '@react-three/drei';
-import { Model } from './models/Room';
+import { Model } from './models/Room16';
 
 
 
 export function Scene() {
 
-
-  const [isMobile, setIsMobile] = useState(false);
-
-useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth <= 768); // Adjust breakpoint as needed
-  };
-
-  window.addEventListener('resize', handleResize);
-  handleResize();
-
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
 
   return (
     <div className="h-screen w-full bg-black ">
@@ -48,7 +35,7 @@ useEffect(() => {
           <Model/>
         </Suspense>
         <EffectComposer disableNormalPass>
-        {isMobile ? null : <Bloom luminanceThreshold={0.2} mipmapBlur />}
+        <Bloom luminanceThreshold={0.2} mipmapBlur />
         <ToneMapping />
       </EffectComposer>
       </Canvas>
