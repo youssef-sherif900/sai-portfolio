@@ -20,7 +20,7 @@ export function Scene() {
     <div className="h-screen w-full bg-black">
         <Suspense fallback={<Loader/>}>
       <Canvas
-      camera={{ position:[5,4.5,11] , rotation:[0,0.8,0]  }}
+      camera={{ position:[5,8,11] , rotation:[0,0.8,0]  }}
       >
           <Environment resolution={512}>
         {/* Ceiling */}
