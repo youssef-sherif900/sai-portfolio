@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/3d/models/Model.jsx", "components/3d/LoadingSpinner.jsx", "components/Loader.jsx", "components/3d/Scene.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/3d/models/Model.jsx", "components/3d/LoadingSpinner.jsx", "components/Loader.jsx", "components/3d/Scene.jsx", "lib/store.ts"],
   "exclude": ["node_modules"]
 }

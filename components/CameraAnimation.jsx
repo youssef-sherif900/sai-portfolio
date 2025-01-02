@@ -1,47 +1,62 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
-
 export default function CameraAnimation() {
-    const { camera } = useThree();
-    const [isAnimating, setIsAnimating] = useState(true);
-    const startPos = useRef(new THREE.Vector3(0, 0, 0));
-    const targetPos = useRef(new THREE.Vector3(-0.5, 4, -3));
+  const { camera } = useThree();
+  const [isAnimating, setIsAnimating] = useState(true);
 
-    const targetRotation = useRef(new THREE.Euler(0, 0, 0)); 
-    
-  
-    useEffect(() => {
-      camera.position.copy(startPos.current);
+  const startPos = useRef(new THREE.Vector3(0, 8, 10));
 
-      camera.rotation.copy(new THREE.Euler(0, 0, 0));
+  // Waypoints for the camera path
+  const waypoint1 = useRef(new THREE.Vector3(-5.924, 5, 5.187));
+  const waypoint2 = useRef(new THREE.Vector3(-5.803, 2.809, -2.059));
+  const targetPos = useRef(new THREE.Vector3(0.7, 5, -3));
+  const lookAtTarget = useRef(new THREE.Vector3(0.7, 4.5, -5));
+  const upVector = useRef(new THREE.Vector3(0, 0, 0)); // Custom up vector
 
-      
+  // Create a curve that goes through the waypoints
+  const curve = useRef(
+    new THREE.CatmullRomCurve3([
+      startPos.current,
+      waypoint1.current,
+      waypoint2.current,
+      targetPos.current,
+    ])
+  );
 
-    }, []);
-  
-    useFrame((state, delta) => {
-      if (isAnimating) {
-        // Move the camera towards the target position
-        camera.position.lerp(targetPos.current, 0.1);
+  const t = useRef(0); // Time or progress along the curve (0 to 1)
 
+  useEffect(() => {
+    camera.position.copy(startPos.current);
+    camera.rotation.copy(new THREE.Euler(0, 0, 0));
+  }, []);
 
-              // Lerp the camera's rotation towards the target rotation
-      camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, targetRotation.current.x, 0.1);
-      camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, targetRotation.current.y, 0.1);
-      camera.rotation.z = THREE.MathUtils.lerp(camera.rotation.z, targetRotation.current.z, 0.1);
+  useFrame((state, delta) => {
+    if (isAnimating) {
+      // Increment progress t along the curve
+      t.current += delta * 0.1; // Adjust speed by modifying 0.1
 
-  
-        // Check if the camera is close enough to the target position
-        if (camera.position.distanceTo(targetPos.current) < 0.1) {
-          // Stop the animation once the target is reached
-          setIsAnimating(false);
-        }
+      if (t.current < 1) {
+        // Sample position along the curve
+        camera.position.copy(curve.current.getPointAt(t.current));
+
+        // Optionally, smoothly rotate the camera as it moves along the curve
+        const lookAt = new THREE.Vector3().lerpVectors(camera.position, lookAtTarget.current, 0.1);
+        camera.lookAt(lookAt);
+
+        // Smooth rotation is no longer needed since we're using `lookAt`
+      } else {
+        // Once camera reaches target position, set the final lookAt and up vector
+        camera.position.copy(targetPos.current);
+        camera.lookAt(lookAtTarget.current);
+        camera.up.copy(upVector.current); // Set custom up vector
+
+        // Stop the animation
+        setIsAnimating(false);
       }
-    });
-  
-    return null;
-  }
-  
+    }
+  });
+
+  return null;
+}
